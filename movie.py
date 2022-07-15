@@ -8,7 +8,7 @@
 # 
 # Projeto Final - POO
 
-class Movie():
+class movie():
 
     def __init__(self, id, name, director, actor, supporting, genre, year, imdbScore, imgName):
         self.id = id

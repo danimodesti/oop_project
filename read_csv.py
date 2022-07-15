@@ -13,9 +13,7 @@ import pandas as pd
 import glob
 import os
 
-from Movie import *
-
-
+from movie import *
 
 def readCSV(movies):
     #Lendo os arquivos de grupos
@@ -29,6 +27,7 @@ def readCSV(movies):
         try:
             # lendo arquivos .csv
             df = pd.read_csv(file)
+            print(df)
             try:
                 #percorrendo as colunas
                 id = pd.read_csv(file).columns[0]
@@ -40,8 +39,8 @@ def readCSV(movies):
                 year = pd.read_csv(file).columns[6]
                 imdbScore = pd.read_csv(file).columns[7]
                 imgName = pd.read_csv(file).columns[8]
-                newMovie = Movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
-
+                newMovie = movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
+                print(newMovie)
                 movies.append(newMovie)
 
                 for j in range(len(df)):
@@ -55,7 +54,7 @@ def readCSV(movies):
                     imdbScore = df.iloc[j, 7]
                     imgName = df.iloc[j, 8]
 
-                    newMovie = Movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
+                    newMovie = movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
 
                     movies.append(newMovie)
 
