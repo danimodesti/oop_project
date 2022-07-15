@@ -4,6 +4,10 @@ from movie import *
 from read_csv import *
 import random
 import textwrap
+import cv2
+from PIL import Image, ImageTk
+import re
+
 
 # Layout 
 # sg.theme('DarkBlue')
@@ -88,19 +92,19 @@ class FaceTheMovie:
             #adicionando os nomes com quebra de linha na lista de nomes
             self.names.append(namePieces[0])
         #-----------------------------------------------
-
+        
         try:
             #adicionando as imagens na tela
-            imagem1 = [[sg.Image(self.images[0])], [sg.Text(self.names[0], text_color=('white'), font=fontName)]]
-            imagem2 = [[sg.Image(self.images[1])], [sg.Text(self.names[1], text_color=('white'), font=fontName)]]
-            imagem3 = [[sg.Image(self.images[2])], [sg.Text(self.names[2], text_color=('white'), font=fontName)]]
-            imagem4 = [[sg.Image(self.images[3])], [sg.Text(self.names[3], text_color=('white'), font=fontName)]]
-            imagem5 = [[sg.Image(self.images[4])], [sg.Text(self.names[4], text_color=('white'), font=fontName)]]
-            imagem6 = [[sg.Image(self.images[5])], [sg.Text(self.names[5], text_color=('white'), font=fontName)]]
-            imagem7 = [[sg.Image(self.images[6])], [sg.Text(self.names[6], text_color=('white'), font=fontName)]]
-            imagem8 = [[sg.Image(self.images[7])], [sg.Text(self.names[7], text_color=('white'), font=fontName)]]
-            imagem9 = [[sg.Image(self.images[8])], [sg.Text(self.names[8], text_color=('white'), font=fontName)]]
-            imagem10 =[[sg.Image(self.images[9])], [sg.Text(self.names[9], text_color=('white'), font=fontName)]]
+            imgLayouts = []
+
+            for i in range(10):
+                #definindo as 'keys' das imagens e dos botoes
+                imgKey = "-img" + str(i) + "-"
+                btnKey = "-btnDesc"+ str(i) + "-"
+
+                #chamando a funcao de criacao de layout e adicionando na lista de layouts
+                imgLayouts.append(self.makeImageLayout(self.images[i], imgKey, self.names[i], btnKey))
+
         except:
             print("Não foi possível encontrar as imagens!")
 
@@ -116,13 +120,13 @@ class FaceTheMovie:
             #Elementos da pagina
             [sg.Text('PREPARAR', key='-text-', font=font)],
             [sg.Text(hint, key='-textHint-', font=fontHint)],
-            [sg.Column(imagem1) , sg.Column(imagem2), sg.Column(imagem3), sg.Column(imagem4), sg.Column(imagem5)],
-            [sg.Column(imagem6) , sg.Column(imagem7), sg.Column(imagem8), sg.Column(imagem9), sg.Column(imagem10)],
+            [sg.Column(imgLayouts[0]) , sg.Column(imgLayouts[1]), sg.Column(imgLayouts[2]), sg.Column(imgLayouts[3]), sg.Column(imgLayouts[4])],
+            [sg.Column(imgLayouts[5]) , sg.Column(imgLayouts[6]), sg.Column(imgLayouts[7]), sg.Column(imgLayouts[8]), sg.Column(imgLayouts[9])],
             [sg.Column(buttonNextHint)]
         ]
 
         #abrindo uma nova janela
-        janela = sg.Window('OPA', Layout2, size=(900,600), element_justification = 'c', use_default_focus=False)
+        janela = sg.Window('OPA', Layout2, size=(900,700), element_justification = 'c', use_default_focus=False)
 
         # Ler os eventos
         while True:
@@ -135,6 +139,19 @@ class FaceTheMovie:
                 hint = self.newHint(selectedMovie, possibleHints)
                 #atualizando o elemento texto que representa a dica
                 janela.Element('-textHint-').update(hint)
+                
+            if eventos.startswith('-btnDesc'):
+                
+                #verificando qual e o numero da alternativa que foi selecionada
+                numImg = re.sub("[^0-9]", "", eventos)
+                #descolorindo a imagem referente a alternativa selecionada
+                imgGray = self.decolorizeImage(self.images[int(numImg)])
+
+                #determinando qual sera o nome da imagem
+                imgName = "-img" + numImg + "-"
+
+                #atualizando a imagem do layout para a imagem em preto e branco
+                janela[imgName].update(data = imgGray)
 
 
     def shuffleMovies(self):
@@ -179,5 +196,27 @@ class FaceTheMovie:
         
         return hint
 
-    
+    def decolorizeImage(self, imgName):
+
+        #lendo imagem original
+        originalImg = cv2.imread(imgName)
+        #convertendo a cor
+        imgGray = cv2.cvtColor(originalImg, cv2.COLOR_BGR2GRAY)
+
+        #convertendo o formato da imagem
+        data = Image.fromarray(imgGray)
+        image = ImageTk.PhotoImage(image=data)
+
+        return image
+
+
+    def makeImageLayout(self, nameImg, imgKey, nameMovie, btnKey ):
+
+        # ------------------- Layout Definition -------------------
+        imgLayout = [[sg.Image(nameImg, key=imgKey)],
+                    [sg.Text(nameMovie, text_color=('white'), font=fontName)],
+                    [sg.Button('Descartar', key=btnKey, button_color=('white', sg.theme_background_color()), font=fontHint, border_width = 0)]]
+
+        # ------------------- Window Creation -------------------
+        return imgLayout
 
