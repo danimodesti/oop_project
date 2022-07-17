@@ -12,7 +12,6 @@ import csv
 import pandas as pd
 import glob
 import os
-
 from movie import *
 
 def readCSV(movies):
@@ -38,8 +37,10 @@ def readCSV(movies):
                 genre = pd.read_csv(file).columns[5]
                 year = pd.read_csv(file).columns[6]
                 imdbScore = pd.read_csv(file).columns[7]
+                # level = pd.read_csv(file).columns[8]
+                level = 0
                 imgName = pd.read_csv(file).columns[8]
-                newMovie = movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
+                newMovie = movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
                 print(newMovie)
                 movies.append(newMovie)
 
@@ -54,7 +55,7 @@ def readCSV(movies):
                     imdbScore = df.iloc[j, 7]
                     imgName = df.iloc[j, 8]
 
-                    newMovie = movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName)
+                    newMovie = movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
 
                     movies.append(newMovie)
 
