@@ -10,7 +10,7 @@
 
 class movie():
 
-    def __init__(self, id, name, director, actor, supporting, genre, year, imdbScore, imgName):
+    def __init__(self, id, name, director, actor, supporting, genre, level, year, imdbScore, imgName):
         self.id = id
         self.name = name
         self.director = director
@@ -18,8 +18,12 @@ class movie():
         self.supporting = supporting
         self.year = year
         self.genre = genre
+        self.level = level
         self.imdbScore = imdbScore
         self.imgName = imgName
+
+    def getLevel(self):
+        return self.level
         
     def __str__(self):
         string = "\n\tName: "+ str(self.name) + "\n\tDirector: "+str(self.director) +"\n\t"
