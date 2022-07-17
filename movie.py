@@ -24,6 +24,9 @@ class movie():
 
     def getLevel(self):
         return self.level
+    
+    def getId(self):
+        return self.id
         
     def __str__(self):
         string = "\n\tName: "+ str(self.name) + "\n\tDirector: "+str(self.director) +"\n\t"
