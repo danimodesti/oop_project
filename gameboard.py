@@ -40,6 +40,7 @@ class gameboard():
                     # Seleciona os filmes com o nivel especificado de acordo com a quantidade de filmes
                     if allMovies[i].getLevel() == level and len(match) < numMovies:
                         match.append(allMovies[i])
+            random.shuffle(match)
         except:
             print("Erro em sortear filmes")
         
@@ -54,14 +55,14 @@ class gameboard():
         #sorteando um filme e retirando ele da lista
         try:
             random.shuffle(self.matchMovies)
-            self.selectedMovie = self.matchMovies.pop()
+            self.selectedMovie = self.matchMovies[0]
         except:
             print("Nao foi possivel selecionr um filme!")
     
     def loadImagesAndNames(self, images, names):
         for i in range(len(self.matchMovies)):
             #pegando os nomes das imagens
-            images.append(f'./imagens/{self.matchMovies[i].imgName}')
+            images.append([self.matchMovies[i].id, f'./imagens/{self.matchMovies[i].imgName}'])
 
             #pegando os nomes dos filmes e adicionando quebra de linha
             namePieces = textwrap.wrap(self.matchMovies[i].name,20)
@@ -70,6 +71,9 @@ class gameboard():
 
             #adicionando os nomes com quebra de linha na lista de nomes
             names.append(namePieces[0])
+    
+    def getIdSelectedMovie(self):
+        return self.selectedMovie.getId()
 
     def newHint(self, possibleHints):
           #caso todas as dicas ja tenham sido mostradas
