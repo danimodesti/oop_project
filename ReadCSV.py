@@ -69,7 +69,7 @@ def addUserNameCSV(username, score):
     print("NOME DE USU",username)
     rankingList = []
     rankingList.append([username,score])
-    with open('ranking/ranking.csv', 'w', encoding='UTF8') as f:
+    with open('ranking/ranking.csv', 'a', encoding='UTF8') as f:
         writer = csv.writer(f)
 
     # escreve nome do usuario e seu respectivo score no csv de ranking
