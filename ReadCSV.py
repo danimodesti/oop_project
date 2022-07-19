@@ -12,7 +12,8 @@ import csv
 import pandas as pd
 import glob
 import os
-from movie import *
+from MovieGame import *
+import UserGame
 
 def readCSV(movies):
     #Lendo os arquivos de grupos
@@ -40,7 +41,7 @@ def readCSV(movies):
                 # level = pd.read_csv(file).columns[8]
                 level = 0
                 imgName = pd.read_csv(file).columns[8]
-                newMovie = movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
+                newMovie = Movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
                 print(newMovie)
                 movies.append(newMovie)
 
@@ -55,7 +56,7 @@ def readCSV(movies):
                     imdbScore = df.iloc[j, 7]
                     imgName = df.iloc[j, 8]
 
-                    newMovie = movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
+                    newMovie = Movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
 
                     movies.append(newMovie)
 
@@ -64,4 +65,12 @@ def readCSV(movies):
         except:
             print("Nao foi possivel ler o arquivo")
 
+def addUserNameCSV(username, score):
+    print("NOME DE USU",username)
+    rankingList = []
+    rankingList.append([username,score])
+    with open('ranking/ranking.csv', 'w', encoding='UTF8') as f:
+        writer = csv.writer(f)
 
+    # escreve nome do usuario e seu respectivo score no csv de ranking
+        writer.writerow(rankingList)

@@ -7,8 +7,9 @@
 # POO — 3o semestre — Professor Delamaro
 # 
 # Projeto Final - POO
+from GameBoard import *
 
-class user():
+class User():
     def __init__(self, name):
         self.name = name
         self.level = 0
@@ -19,3 +20,10 @@ class user():
     
     def getLevel(self):
         return self.level
+    
+    def increaseLevel(self):
+        self.level += 1
+        
+    def getTotalScore(self):
+        self.totalScore = self.Gameboard.getScore()
+        return self.totalScore

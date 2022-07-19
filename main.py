@@ -7,7 +7,7 @@
 # POO — 3o semestre — Professor Delamaro
 # 
 # Projeto Final - POO
-from face_the_movie import *
+from FaceTheMovie import *
 
 def main():
     # Jogar `Face the Movie` 
