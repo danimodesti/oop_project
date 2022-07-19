@@ -38,12 +38,15 @@ def readCSV(movies):
                 genre = pd.read_csv(file).columns[5]
                 year = pd.read_csv(file).columns[6]
                 imdbScore = pd.read_csv(file).columns[7]
-                # level = pd.read_csv(file).columns[8]
-                level = 0
                 imgName = pd.read_csv(file).columns[8]
-                newMovie = Movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
-                print(newMovie)
+                curiosity = pd.read_csv(file).columns[9]
+                runTime = pd.read_csv(file).columns[10] # duracao
+                rating = pd.read_csv(file).columns[11] # classificacao indicativa
+                oscar = pd.read_csv(file).columns[12]
+                level = pd.read_csv(file).columns[13]
+                newMovie = Movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName, curiosity, runTime, rating, oscar, level)
                 movies.append(newMovie)
+                # print(newMovie)
 
                 for j in range(len(df)):
                     id = df.iloc[j, 0]
@@ -55,8 +58,14 @@ def readCSV(movies):
                     year = df.iloc[j, 6]
                     imdbScore = df.iloc[j, 7]
                     imgName = df.iloc[j, 8]
+                    curiosity = df.iloc[j, 9]
+                    runTime = df.iloc[j, 10]
+                    rating = df.iloc[j, 11]
+                    oscar = df.iloc[j, 12]
+                    level = df.iloc[j, 13]
 
-                    newMovie = Movie(id, name, director, actor, supporting, genre, level, year, imdbScore, imgName)
+                    newMovie = Movie(id, name, director, actor, supporting, genre, year, imdbScore, imgName, curiosity, runTime, rating, oscar, level)
+                    # print(newMovie)
 
                     movies.append(newMovie)
 

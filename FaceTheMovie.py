@@ -86,9 +86,9 @@ class FaceTheMovie():
 
         levelNumber = self.user.getLevel()
         level = 'Padrao'
-        if levelNumber == 0:
+        if levelNumber == 1:
             level = 'Iniciante'
-        elif levelNumber == 1:
+        elif levelNumber == 2:
             level = 'Intermediario'
         else:
             level = 'Profissional'
@@ -156,6 +156,7 @@ class FaceTheMovie():
     def newGame(self):
 
         # preencher lista de filmes com as informações do .csv
+        self.allMovies = list()
         readCSV(self.allMovies)
 
         # Teste - printando os filmes lidos
@@ -173,7 +174,7 @@ class FaceTheMovie():
 
         # Cria o Gameboard de uma partida
         self.Gameboard = Gameboard(self.allMovies, 15, self.user.getLevel())
-        # self.Gameboard.showMovies()
+        self.Gameboard.showMovies()
 
         # lista com nomes das imagens e dos filmes que serao as alternativas
         images = []
@@ -203,10 +204,10 @@ class FaceTheMovie():
         print(len(imgLayouts))
 
         # sorteando um filme para ser adivinhado
-        #self.Gameboard.drawSelectedMovie()
-        print(self.Gameboard.drawSelectedMovie())
-       # print(self.Gameboard.getIdSelectedMovie())
-        possibleHints = [1, 2, 3, 4, 5, 6]
+        self.Gameboard.drawSelectedMovie()
+        print(self.Gameboard.selectedMovie)
+        print(self.Gameboard.getIdSelectedMovie())
+        possibleHints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
         # selecionando uma dica
         hint = self.Gameboard.newHint(possibleHints)
@@ -273,7 +274,8 @@ class FaceTheMovie():
                     window[eventos].update('Reverter')
 
                 elif window[eventos].get_text() == 'Reverter':
-                    print(images[int(idImg)])
+                    # print(len(images))
+                    # print(idImg)
                     window[imgName].update(images[index][1])
                     window[eventos].update('Descartar')
 
@@ -293,10 +295,10 @@ class FaceTheMovie():
                             'Parabens! Voce passou de nível, vamos dificultar um pouco mais 😈', keep_on_top=True, background_color='black')
                         window.close()
                         self.setRounds() # reinicia a contagem das rodadas
-                        self.newGame()
+                        self.newPhase()
                     else:
                         window.close()
-                        self.newGame() # reinicia jogo
+                        self.newPhase() # reinicia jogo
                 else:
                     self.Gameboard.decreaseScore(150)
                     sg.popup_no_titlebar(

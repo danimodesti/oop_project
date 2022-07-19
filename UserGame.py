@@ -12,7 +12,7 @@ from GameBoard import *
 class User():
     def __init__(self, name):
         self.name = name
-        self.level = 0
+        self.level = 1
         self.totalScore = 0
     
     def getName(self):
