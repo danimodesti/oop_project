@@ -25,6 +25,8 @@ class Gameboard():
         self.numMovies = numMovies
         self.score = 5000
         self.selectedMovie = ""
+        self.hints = list()
+        self.hintIndex = -1
 
     def increaseScore(self, value):
         self.score += value
@@ -42,10 +44,10 @@ class Gameboard():
         return self.selectedMovie
     
     def getIdSelectedMovie(self):
-        return self.selectedMovie.getId()
+        return int(self.selectedMovie.getId())
+
     # Seleciona os
     def drawMovies(self, allMovies, numMovies, level):
-        # print(f"level: {level}")
         match = list()
         try:
             random.shuffle(allMovies)
@@ -54,7 +56,6 @@ class Gameboard():
                     # Seleciona os filmes com o nivel especificado de acordo com a quantidade de filmes
                     if allMovies[i].getLevel() == level and len(match) < numMovies:
                         match.append(allMovies[i])
-                        #print(f"level: {level}")
             random.shuffle(match)
         except:
             print("Erro em sortear filmes")
@@ -71,11 +72,11 @@ class Gameboard():
         try:
             random.shuffle(self.matchMovies)
             self.selectedMovie = self.matchMovies[0]
-            print(type(self.matchMovies[0]))
+            # print(type(self.matchMovies[0]))
             # está dando ruim aq
-            print("<FILME SELECIONADO> ", self.selectedMovie)
-            self.getSelectedMovie(self.selectedMovie)
-            self.getIdSelectedMovie()
+            # print("<FILME SELECIONADO> ", self.selectedMovie)
+            # self.getSelectedMovie(self.selectedMovie)
+            # self.getIdSelectedMovie()
         except:
             print("Nao foi possivel selecionar um filme!")
 
@@ -103,7 +104,6 @@ class Gameboard():
         x = possibleHints.pop()
 
         # dicas
-        # ERROS AQUI
         if x == 1:
             hint = self.selectedMovie.getDirector()
             hint += " dirigiu esse filme."
@@ -126,6 +126,13 @@ class Gameboard():
         elif x == 7:
             hint = "Curiosidade: "
             hint += self.selectedMovie.getCuriosity()
+            if len(hint) > 129:
+                # Quebrando linha da curiosidade
+                hintPieces = textwrap.wrap(hint, 130)
+                hintPieces2 = ""
+                for i in range(len(hintPieces) - 1):
+                    hintPieces2 += str(hintPieces[i]) + "\n" + str(hintPieces[i+1])
+                hint = hintPieces2
         elif x == 8:
             hint = "Duração do filme: "
             hint += self.selectedMovie.getRunTime()
@@ -134,8 +141,39 @@ class Gameboard():
             hint += self.selectedMovie.getRating()
         elif x == 10:
             hint = "Esse filme "
-            hint += self.selectedMovie.getOscar()
-            hint = " ganhou um Oscar"
-        # hint = "OPA"
+            if self.selectedMovie.getOscar() == "não":
+                hint += self.selectedMovie.getOscar() + " "
+            hint += "ganhou um Oscar"
 
         return hint
+    
+    def getActualHint(self):
+        if self.hintIndex != -1: 
+            return self.hints[self.hintIndex]
+        return ""
+
+    def drawHints(self):
+        possibleHints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.hintIndex = 0
+
+        # selecionando uma dica
+        self.hints = list()
+        while possibleHints:
+            self.hints.append(self.newHint(possibleHints))
+    
+    def nextHint(self):
+        if self.hintIndex + 1 < 10: 
+            # print("NEXT: ")
+            # print(self.hintIndex)
+            self.hintIndex += 1 # Adiciona uma posicao na dica
+            return self.hints[self.hintIndex]
+        return None
+    
+    def previousHint(self):
+        if self.hintIndex - 1 >= 0: 
+            # print("PREVIOUS")
+            # print(self.hintIndex)
+            self.hintIndex -= 1 # Adiciona uma posicao na dica
+            return self.hints[self.hintIndex]
+        return None            
+        

@@ -18,12 +18,13 @@ class User():
     def getName(self):
         return self.name
     
+    def getTotalScore(self):
+        return self.totalScore
+    
     def getLevel(self):
         return self.level
     
     def increaseLevel(self):
-        self.level += 1
-        
-    def getTotalScore(self):
-        self.totalScore = self.Gameboard.getScore()
-        return self.totalScore
+        if self.level + 1 < 4: 
+            self.level += 1
+        return self.level
