@@ -7,6 +7,7 @@
 # POO — 3o semestre — Professor Delamaro
 #
 # Projeto Final - POO
+from math import ceil, floor
 import random
 from MovieGame import *
 import textwrap
@@ -20,10 +21,10 @@ import textwrap
 
 class Gameboard():
 
-    def __init__(self, allMovies, numMovies, level):
+    def __init__(self, score, allMovies, numMovies, level):
         self.matchMovies = self.drawMovies(allMovies, numMovies, level)
         self.numMovies = numMovies
-        self.score = 5000
+        self.score = score
         self.selectedMovie = ""
         self.hints = list()
         self.hintIndex = -1
@@ -31,16 +32,30 @@ class Gameboard():
     def increaseScore(self, value):
         self.score += value
 
+    def winScore(self, value):
+        self.score = ceil(self.score * value)
+
+    def penaltyScore(self, value):
+        self.score = floor(self.score * value)
+        if self.score <= 0:
+            self.score = 0
+            return 0
+        return self.score
+
     def decreaseScore(self, value):
         self.score -= value
+        if self.score <= 0:
+            self.score = 0
+            return 0
+        return self.score
 
     def getScore(self):
-        return self.score
+        return int(self.score)
 
     def getNumMovies(self):
         return self.numMovies
 
-    def getSelectedMovie(self, selectedMovie):
+    def getSelectedMovie(self):
         return self.selectedMovie
     
     def getIdSelectedMovie(self):
@@ -61,6 +76,9 @@ class Gameboard():
             print("Erro em sortear filmes")
 
         return match
+    
+    def shuffleMovies(self):
+        random.shuffle(self.matchMovies)
 
     def showMovies(self):
         print("Printando FILMES ------------------------------------------")
@@ -152,8 +170,10 @@ class Gameboard():
             return self.hints[self.hintIndex]
         return ""
 
-    def drawHints(self):
-        possibleHints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    def drawHints(self, gameModeHint = 0):
+        if gameModeHint == 2: possibleHints = [7]
+        else: possibleHints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
         self.hintIndex = 0
 
         # selecionando uma dica
@@ -176,4 +196,4 @@ class Gameboard():
             self.hintIndex -= 1 # Adiciona uma posicao na dica
             return self.hints[self.hintIndex]
         return None            
-        
+    

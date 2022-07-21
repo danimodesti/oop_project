@@ -12,8 +12,10 @@ from GameBoard import *
 import cv2
 from PIL import Image, ImageTk
 import re
+import time
 
 # Configuracoes de sLayout
+# sg.theme('DefaultNoMoreNagging')
 font = ("Arial", 40)
 fontHint = ("Arial", 15)
 fontName = ("Arial", 10)
@@ -25,13 +27,13 @@ fontName = ("Helvetica", 12)
 movies = []
 
 class FaceTheMovie():
-    allMovies = list()
-    rounds = 0
 
     # Construtor --------------------------
     def __init__(self):
+        # self.rounds = 0
         self.alreadyDraw = list()
         self.userWindow()
+        self.paused = 0
     
     # Entrada do Usuario ------------------------------------------------
     def userWindow(self):
@@ -83,7 +85,7 @@ class FaceTheMovie():
         buttons = [
             [sg.Button('Jogar', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0, pad=(10,0))],
-            [sg.Button('Ranks', button_color=(
+            [sg.Button('Ranking', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0, pad=(10,0))],
             [sg.Button('Como Jogar', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0, pad=(10,0))],
@@ -100,14 +102,14 @@ class FaceTheMovie():
         levelNumber = self.user.getLevel()
         level = 'Padrao'
         if levelNumber == 1:
-            level = 'Iniciante'
+            level = 'Pipoca de Cinema'
         elif levelNumber == 2:
-            level = 'Intermediario'
+            level = 'Artista em cena'
         else:
-            level = 'Profissional'
+            level = 'Cinéfilo'
 
         # Atualiza o menu com o nome do usuario
-        NewLayout = [[sg.Text(f'Seu nome para ranks: {self.user.getName()} | Nivel: {level}', text_color=(
+        NewLayout = [[sg.Text(f'Seu nome para ranking: {self.user.getName()} | Nivel: {level} | Score total: {self.user.getTotalScore()}', text_color=(
             'white'), key='-textName-', font=fontName)]] + Layout
 
         # Janela do Menu ------------------------------------------------
@@ -121,11 +123,11 @@ class FaceTheMovie():
                 break
             if eventos == 'Jogar':
                 window.close() # Fecha janela de menu
-                self.newGame() # Cria um novo jogo
+                self.gameModes()
 
-            if eventos == 'Ranks':
+            if eventos == 'Ranking':
                 window.close() # Fecha a janela de menu
-                self.showRank() # Mostra a janela de rank
+                self.showRanking() # Mostra a janela de rank
 
             if eventos == 'Como Jogar':
                 window.close()
@@ -133,14 +135,50 @@ class FaceTheMovie():
 
             if eventos == 'Sair':
                 break
+        window.close()
+
+    def gameModes(self):
+        # Layouts ------------------------
+
+        howToPlayLayout = [
+            [sg.Text('Modos de Jogo', text_color=('white'), key='-text-', font=font)],
+            [sg.Button('> Normal', button_color=('white', sg.theme_background_color()), font=fontButton, border_width=0)],
+            [sg.Button('> Temporizador', button_color=('white', sg.theme_background_color()), font=fontButton, border_width=0)],
+            [sg.Button('> Morte súbita', button_color=('white', sg.theme_background_color()), font=fontButton, border_width=0)]
+        ]
+        
+        # Janela de Modos de jogo ----------------------------------
+        window = sg.Window('Modos de jogo', howToPlayLayout, size=(
+            700, 300), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
+
+        gameMode = 0
+
+        # Ler os eventos
+        while True:
+            eventos, valores = window.read()
+            if eventos == sg.WINDOW_CLOSED:
+                window.close()
+                self.mainMenu()
+                break
+
+            if eventos == '> Normal':
+                gameMode = 0
+            if eventos == '> Temporizador':
+                gameMode = 1
+            if eventos == '> Morte súbita':
+                gameMode = 2
+
+            print(gameMode)
+            window.close()
+            self.newGame(gameMode)
+            break
     
     def howToPlay(self):
         # Layouts ------------------------
         # Texto de teste kkkkk
-        howToPlay = "TEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nTEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n"
-        howToPlay += "TEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nTEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n"
-        howToPlay += "TEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nTEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n"
-        howToPlay += "TEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\nTEXTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n"
+        howToPlay = "Para o jogo 'Face The Movie' não é necessário ser cinéfilo para se divertir! Todos podem jogar 😊.\nPara isso, você precisa ficar bem atento(a) às dicas apresentadas na sua telinha.\n"
+        howToPlay += "Serão 10 dicas sobre um filme sorteado por nós e você deve tentar acertá-lo. Disponibilizamos a opção de avançar ou retroceder dicas!\nA cada acerto, você receberá 300 pontos e a cada erro perderá 150 pontos!\n"
+        howToPlay += "Ao final do jogo, o seu score (positivo ou negativo) será registrado em nossa tabelinha de ranking que poderá ser consultada em nosso menu principal no botão 'Ranking' 🥺.\n"
 
         howToPlayLayout = [
             [sg.Text('Como jogar', text_color=('white'), key='-text-', font=font)],
@@ -148,7 +186,7 @@ class FaceTheMovie():
             [sg.Button('Voltar', button_color=('white', sg.theme_background_color()), font=fontButton, border_width=0)]
         ]
         
-        # Janela de Rank ----------------------------------
+        # Janela de Como jogar ----------------------------------
         window = sg.Window('Como Jogar', howToPlayLayout, size=(
             700, 500), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
 
@@ -158,21 +196,23 @@ class FaceTheMovie():
             if eventos == sg.WINDOW_CLOSED:
                 window.close()
                 self.mainMenu()
+                break
             if eventos == 'Voltar':
                 window.close()
                 print('JOGO AQUI')
 
                 # volta para o menu principal
                 self.mainMenu()
+                break
     
     # Mostrar Rank ---------------------------------------------
-    def showRank(self):
+    def showRanking(self):
 
         # Layouts ------------------------
         buttons = [
             [sg.Button('Voltar', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0)],
-            [sg.Button('Sair', button_color=(
+            [sg.Button('Enviar Pontuação', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0)]
         ]
         
@@ -186,6 +226,7 @@ class FaceTheMovie():
         window = sg.Window('Ranking', RankLayout, size=(
             900, 400), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
 
+        readRankingCSV()
         # Ler os eventos
         while True:
             eventos, valores = window.read()
@@ -198,42 +239,64 @@ class FaceTheMovie():
                 # volta para o menu principal
                 self.mainMenu()
 
-            if eventos == 'Sair':
+            if eventos == 'Enviar Pontuação':
+                if self.user.getTotalScore() > 0:
+                    addUserNameCSV(self.user)
                 break
         # Ler csv do rank e mostrar na tela
         print("SHoW RaNK")
 
-    def newGame(self):
+    def timer_count(self):
+        return int(round(time.time() * 100))
+
+    def newGame(self, gameMode):
 
         # Preencher lista de filmes com as informações do .csv
         self.allMovies = list()
-        readCSV(self.allMovies)
+        readMovieCSV(self.allMovies)
 
+        if gameMode == 1:
+            self.start_time = self.timer_count()
+            self.paused = 0
+            self.current_time = 0
         # Chama nova fase
-        self.newPhase()
+        self.newPhase(gameMode)
 
     # Nova fase --------------------------------------------------------
-    def newPhase(self):
+    def newPhase(self, gameMode):
+        newHintCount = 0
+        inGame = True
 
         # Cria o objeto 'Tabuleiro' de uma partida -----------------
-        self.Gameboard = Gameboard(self.allMovies, 15, self.user.getLevel())
+        self.gameboard = Gameboard(200, self.allMovies, 15, self.user.getLevel())
         
         # Sorteando um filme para ser adivinhado ----------------
-        self.Gameboard.drawSelectedMovie()
+        self.gameboard.drawSelectedMovie()
 
         # Verificando se o filme já não foi sorteado nas rodadas passadas
         added = 0
         while added == 0:
-            if self.alreadyDraw.count(self.Gameboard.getIdSelectedMovie()) == 0:
-                self.alreadyDraw.append(self.Gameboard.getIdSelectedMovie())
+            if self.alreadyDraw.count(self.gameboard.getIdSelectedMovie()) == 0:
+                self.alreadyDraw.append(self.gameboard.getIdSelectedMovie())
                 added = 1
-            else: self.Gameboard.drawSelectedMovie()        
+            else: self.gameboard.drawSelectedMovie()        
         
+        print(self.gameboard.getSelectedMovie())
         # Sorteando as dicas do filme selecionado ---------------
-        self.Gameboard.drawHints()
-        hint = self.Gameboard.getActualHint() # selecionando uma dica
+        self.gameboard.drawHints(gameModeHint = gameMode)
+        hint = self.gameboard.getActualHint() # selecionando uma dica
+
+        self.gameboard.shuffleMovies()
 
         # Interface ----------------------------------------
+        timer = [
+            [sg.Text('', font=fontText, justification='left', key='timer', pad=(0,0))]
+        ]
+
+        score = [
+            [sg.Text(self.gameboard.getScore(), font=fontText, justification='left', key='score', pad=(0,0))]
+        ]
+
         buttonNextHint = [
             [sg.Button('< Dica Anterior', button_color=(
                 'white', sg.theme_background_color()), font=fontButton, border_width=0), 
@@ -246,18 +309,17 @@ class FaceTheMovie():
         images = []
         names = []
 
-        self.Gameboard.loadImagesAndNames(images, names)
+        self.gameboard.loadImagesAndNames(images, names)
         try:
             # Adicionando as imagens no layout
             imgLayouts = []
 
-            for i in range(self.Gameboard.getNumMovies()):
+            for i in range(self.gameboard.getNumMovies()):
 
                 # definindo as 'keys' das imagens e dos botoes
                 imgKey = "-img" + str(images[i][0]) + "-"
                 btnKey = "-btnDesc" + str(images[i][0]) + "-"
                 btnGuessKey = "-btnAdv" + str(images[i][0]) + "-"
-                # print(f"IMAGES: {images[i]}, {imgKey}, {names[i]}, {btnKey}")
 
                 # chamando a funcao de criacao de layout e adicionando na lista de layouts
                 imgLayouts.append(self.makeImageLayout(
@@ -267,9 +329,16 @@ class FaceTheMovie():
             print("Não foi possível encontrar as imagens!")
 
         # layout da Pagina
-        Layout2 = [
-            [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center')],
-        ]
+        if gameMode == 1:
+            Layout2 = [
+                [sg.Column(timer), sg.Column(score)],
+                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center')],
+            ]
+        else:
+            Layout2 = [
+                [score],
+                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center')],
+            ]
 
         # Adicionando as imagens no layout
         line = []
@@ -280,7 +349,7 @@ class FaceTheMovie():
                 line = []
 
         Layout2 += [line]
-        Layout2 += [[sg.Frame('',buttonNextHint, pad=(0,20))]] # Adiciona o botao de nova dica
+        if gameMode != 2: Layout2 += [[sg.Frame('',buttonNextHint, pad=(0,20))]] # Adiciona o botao de nova dica
 
         # Abrindo uma nova janela -------------------------
         window = sg.Window(
@@ -289,19 +358,37 @@ class FaceTheMovie():
 
         # Ler os eventos ---------------------
         while True:
-            eventos, valores = window.read()
+            if gameMode == 1 and not self.paused:
+                eventos, values = window.read(timeout=10)
+                print(self.timer_count())
+                self.current_time = self.timer_count() - self.start_time
+                if ((self.current_time // 100) // 60) == 1:
+                    sg.popup_no_titlebar(
+                        'ACABOU O TEMPO', keep_on_top=True, background_color='black', font=fontPopUp)
+                    window.close()
+                    self.mainMenu()
+                    break
+            else:
+                eventos, valores = window.read()
 
             if eventos == sg.WINDOW_CLOSE_ATTEMPTED_EVENT or eventos == 'Exit':
+                self.paused = 1
                 if sg.popup_yes_no('Tem certeza que deseja sair do jogo? Seu progresso nessa partida não sera salvo.', title='Já vai?', font=fontPopUp) == 'Yes':
                     window.close()
                     self.mainMenu()
                     break
+                else:
+                    self.paused = 0
 
             if eventos == 'Proxima Dica >':
                 # Atualizar a Pontuacao **
+                if newHintCount < 9:
+                    if self.gameboard.decreaseScore(20) == 0: inGame = False
+                    window.Element('score').update(self.gameboard.getScore()) 
+                    newHintCount += 1
 
                 # Selecionando uma nova dica
-                hint = self.Gameboard.nextHint()
+                hint = self.gameboard.nextHint()
 
                 if hint != None: 
                     # atualizando o elemento texto que representa a dica
@@ -311,7 +398,7 @@ class FaceTheMovie():
                 # Atualizar a Pontuacao **
 
                 # Selecionando uma nova dica
-                hint = self.Gameboard.previousHint()
+                hint = self.gameboard.previousHint()
 
                 if hint != None: 
                     window.Element('-textHint-').update(hint) 
@@ -335,51 +422,91 @@ class FaceTheMovie():
 
                 if window[eventos].get_text() == 'Descartar':
                     # Atualizando a imagem do layout para a imagem em preto e branco
+                    self.gameboard.increaseScore(10)
+                    window.Element('score').update(self.gameboard.getScore()) 
+
                     window[imgName].update(data=imgGray)
                     window[imgName].set_size((150,145))
                     window[eventos].update('Reverter')
 
                 elif window[eventos].get_text() == 'Reverter':
                     # Atualizando a imagem do layout para a imagem original
+                    if self.gameboard.decreaseScore(50) == 0: inGame = False
+                    window.Element('score').update(self.gameboard.getScore()) 
+
                     window[imgName].update(images[index][1])
                     window[imgName].set_size((150,145))
                     window[eventos].update('Descartar')
 
-
             if eventos.startswith('-btnAdv'): # Tentar adivinhar um filme
                 # Verificando qual e o numero da alternativa que foi selecionada
                 idMovie = re.sub("[^0-9]", "", eventos)
+                buttonValue = window["-btnDesc" + str(idMovie) + "-"].get_text()
 
-                if self.Gameboard.getIdSelectedMovie() == int(idMovie):
-                    sg.popup_no_titlebar(
-                        'Parabens! Voce acertou o filme, vamos para a proxima rodada!', keep_on_top=True, background_color='black', font=fontPopUp)
-                    self.Gameboard.increaseScore(250) # Atualizando pontuacao
-                    self.increaseRounds() # Aumentando rounds
+                return_value = 'Yes' 
+                if gameMode == 2:
+                    return_value = sg.popup_yes_no('Tem certeza da sua escolha? Lembre-se se você errar não terá a chance de tentar novamente.', title='Certeza?', font=fontPopUp)
+                
+                print(return_value)
+                if buttonValue != 'Reverter' and return_value == 'Yes':
+                    
+                    if self.gameboard.getIdSelectedMovie() == int(idMovie):
+                        sg.popup_no_titlebar(
+                            f'Parabens! Voce acertou o filme, vamos para a próxima rodada! Voce ganhou com {self.gameboard.getScore()} pontos!', keep_on_top=True, background_color='black', font=fontPopUp)
+                        self.gameboard.increaseScore(1.45) # Atualizando pontuacao
 
-                    if self.getRounds() == 3:
-                        level = self.user.increaseLevel()
-                        if level == 3:
+                        before = self.user.getTotalScore() 
+                        self.user.increaseTotalScore(self.gameboard.getScore())
+                    
+                        if before < 1000 and self.user.getTotalScore() >= 1000: # Passou de nivel
+                            self.user.increaseLevel()
+                            sg.popup_no_titlebar('Parabéns! Você passou para o próximo nível: Artista em cena', keep_on_top=True, background_color='black', font=fontPopUp)
+
+                        elif before < 2500 and self.user.getTotalScore() >= 2500: # Passou de nivel
+                            self.user.increaseLevel()
+                            sg.popup_no_titlebar('Parabéns! Você passou para o próximo nível: Cinéfilo', keep_on_top=True, background_color='black', font=fontPopUp)
+                        
+
+                        if before < 1000 and self.user.getTotalScore() < 1000:
+                            left = 1000 - self.user.getTotalScore()
+                            
+                            message = f"Faltam {left} para o nivel 2"
                             sg.popup_no_titlebar(
-                                'Parabens! Voce passou de todos os níveis !! Sua pontuação foi de: ', keep_on_top=True, background_color='black', font=fontPopUp)
+                                message, keep_on_top=True, background_color='black', font=fontPopUp)
+                            
+                        elif before < 2500 and self.user.getTotalScore() < 2500:
+                            left = 2500 - self.user.getTotalScore()
+                            
+                            message = f"Faltam {left} para o nivel 3"
+                            sg.popup_no_titlebar(
+                                message, keep_on_top=True, background_color='black', font=fontPopUp)
+
+                        print("NIVEL DA RODADA> ",self.user.getLevel())
+                        window.close()
+                        self.newPhase(gameMode)
+                        break
+
+                    else: # Quando nao acerta o filme
+                        if self.gameboard.penaltyScore(0.4) == 0: inGame = False
+                        window.Element('score').update(self.gameboard.getScore()) 
+
+                        if gameMode == 2:
+                            sg.popup_no_titlebar('Você Errou!! Boa sorte da próxima vez >:)', font=fontPopUp , keep_on_top=True, background_color='black')
                             window.close()
                             self.mainMenu()
                             break
-                        
-                        sg.popup_no_titlebar(
-                            'Parabens! Voce passou de nível, vamos dificultar um pouco mais 😈', keep_on_top=True, background_color='black', font=fontPopUp)
-                        window.close()
-                        self.setRounds() # reinicia a contagem das rodadas
-                        self.newPhase()
-                        break
-                    else:
-                        window.close()
-                        self.newPhase() # reinicia jogo
-                        break
+                        else:
+                            sg.popup_no_titlebar('ERROU', keep_on_top=True, background_color='black')
+            
+            if not inGame:
+                sg.popup_no_titlebar('Sua pontuação chegou a zero! Você Perdeu! ', keep_on_top=True, background_color='black')
+                window.close()
+                self.mainMenu()
+                break
+            if gameMode == 1:
+                window['timer'].update('{:02d}:{:02d}'.format((self.current_time // 100) // 60,
+                                                              (self.current_time // 100) % 60))
 
-                else: # Quando nao acerta o filme
-                    self.Gameboard.decreaseScore(150)
-                    sg.popup_no_titlebar(
-                        'ERROU', keep_on_top=True, background_color='black')
 
     def endGame(self):
         self.mainMenu()
@@ -413,13 +540,3 @@ class FaceTheMovie():
 
         # ------------------- Window Creation -------------------
         return imgLayout
-
-    def increaseRounds(self):
-        self.rounds += 1
-
-    def getRounds(self):
-        return self.rounds
-    
-    def setRounds(self):
-        self.rounds = 0
-        self.alreadyDraw = list()

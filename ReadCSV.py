@@ -13,9 +13,12 @@ import pandas as pd
 import glob
 import os
 from MovieGame import *
-import UserGame
+from UserGame import User
+from sort import *
 
-def readCSV(movies):
+RANKING_LEN = 5
+
+def readMovieCSV(movies):
     #Lendo os arquivos de grupos
     path = os.getcwd()
     filenames = glob.glob(os.path.join(path, "*.csv"))
@@ -74,12 +77,53 @@ def readCSV(movies):
         except:
             print("Nao foi possivel ler o arquivo")
 
-def addUserNameCSV(username, score):
-    print("NOME DE USU",username)
-    rankingList = []
-    rankingList.append([username,score])
-    with open('ranking/ranking.csv', 'a', encoding='UTF8') as f:
-        writer = csv.writer(f)
+def addUserNameCSV(user):
+    if type(user) is User:
+        rankingList = readRankingCSV()
+        csv_size = len(rankingList)
 
-    # escreve nome do usuario e seu respectivo score no csv de ranking
-        writer.writerow(rankingList)
+        if len(rankingList) != 0:
+            last_user = rankingList.pop() # Retira o ultimo lugar para comparar
+            
+            if csv_size < RANKING_LEN:
+                rankingList.append(last_user)
+
+        if csv_size < RANKING_LEN or (len(rankingList) != 0 and int(last_user.getTotalScore()) < int(user.getTotalScore())): # Se o ultimo lugar for Menor que o novo usuario
+            rankingList.append(user)
+            insertion_sort(rankingList)
+            # print(f"{len(rankingList)}")
+                    
+            with open('ranking/ranking.csv', 'w', newline='\n', encoding='UTF8') as f:
+                writer = csv.writer(f)
+
+                for userR in rankingList:
+                    print("USER: ", end = '')
+
+                    name = userR.getName()
+                    score = userR.getTotalScore()
+                    print(userR.toString())
+                    rankingName = [name,score]
+                    # escreve nome do usuario e seu respectivo score no csv de ranking
+                    writer.writerow(rankingName)
+            
+            f.close()
+        
+       
+def readRankingCSV():
+    f = open("ranking/ranking.csv", "r")
+    content = f.readlines()
+    l = []
+    # print(content)
+    if len(content) != 0:
+        for i in range(len(content)):
+            s = content[i].split(',')
+
+            readUser = User(name = s[0], totalScore = s[1].replace('\n',''))
+            # l.append([s[0],s[1].replace('\n','')])
+            l.append(readUser)
+    # for user in l:
+    #     print("USER: ", end = '')
+    #     print(user.toString())
+    print(l)
+    f.close()
+    return l
