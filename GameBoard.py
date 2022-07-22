@@ -93,11 +93,6 @@ class Gameboard():
         try:
             random.shuffle(self.matchMovies)
             self.selectedMovie = self.matchMovies[0]
-            # print(type(self.matchMovies[0]))
-            # está dando ruim aq
-            # print("<FILME SELECIONADO> ", self.selectedMovie)
-            # self.getSelectedMovie(self.selectedMovie)
-            # self.getIdSelectedMovie()
         except:
             print("Nao foi possivel selecionar um filme!")
 
@@ -185,16 +180,12 @@ class Gameboard():
     
     def nextHint(self):
         if self.hintIndex + 1 < 10: 
-            # print("NEXT: ")
-            # print(self.hintIndex)
             self.hintIndex += 1 # Adiciona uma posicao na dica
             return self.hints[self.hintIndex]
         return None
     
     def previousHint(self):
         if self.hintIndex - 1 >= 0: 
-            # print("PREVIOUS")
-            # print(self.hintIndex)
             self.hintIndex -= 1 # Adiciona uma posicao na dica
             return self.hints[self.hintIndex]
         return None            
