@@ -61,6 +61,9 @@ class Gameboard():
     def getIdSelectedMovie(self):
         return int(self.selectedMovie.getId())
 
+    def getRound(self):
+        return int(self.round)
+
     # Seleciona os
     def drawMovies(self, allMovies, numMovies, level):
         match = list()
@@ -99,18 +102,24 @@ class Gameboard():
             print("Nao foi possivel selecionar um filme!")
 
     def loadImagesAndNames(self, images, names):
+
         for i in range(len(self.matchMovies)):
             # pegando os nomes das imagens
             images.append(
                 [self.matchMovies[i].id, f'./imagens/{self.matchMovies[i].imgName}'])
 
             # pegando os nomes dos filmes e adicionando quebra de linha
-            namePieces = textwrap.wrap(self.matchMovies[i].name, 20)
-            for i in range(len(namePieces) - 1):
-                namePieces[0] = namePieces[i] + "\n" + namePieces[i+1]
+            namePieces = textwrap.wrap(self.matchMovies[i].name, 15, break_long_words=True, break_on_hyphens=True)
+            name = ""
+
+            for i in range(len(namePieces)):
+                name += namePieces[i]
+                if i < (len(namePieces) - 1):
+                    name += "\n"
 
             # adicionando os nomes com quebra de linha na lista de nomes
-            names.append(namePieces[0])
+
+            names.append(name)
             
     def newHint(self, possibleHints):
         # caso todas as dicas ja tenham sido mostradas
@@ -144,13 +153,6 @@ class Gameboard():
         elif x == 7:
             hint = "Curiosidade: "
             hint += self.selectedMovie.getCuriosity()
-            if len(hint) > 129:
-                # Quebrando linha da curiosidade
-                hintPieces = textwrap.wrap(hint, 130)
-                hintPieces2 = ""
-                for i in range(len(hintPieces) - 1):
-                    hintPieces2 += str(hintPieces[i]) + "\n" + str(hintPieces[i+1])
-                hint = hintPieces2
         elif x == 8:
             hint = "Duração do filme: "
             hint += self.selectedMovie.getRunTime()

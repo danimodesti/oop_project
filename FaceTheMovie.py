@@ -17,14 +17,19 @@ import time
 # Configuracoes de sLayout
 # sg.theme('DefaultNoMoreNagging')
 font = ("Arial", 40)
-fontHint = ("Arial", 15)
+fontHint = ("Arial", 12)
 fontName = ("Arial", 10)
+fontScore = ("Arial", 15)
 fontText = ("Arial", 10)
 fontButton = ("Arial", 20)
+fontButton2 = ("Arial", 15)
+fontButton3 = ("Arial", 10)
 fontPopUp = ("Arial", 15)
 fontUserLayout = ("Helvetica", 15)
-fontName = ("Helvetica", 12)
+fontName = ("Helvetica", 10)
 movies = []
+
+round = 0
 
 class FaceTheMovie():
 
@@ -124,11 +129,11 @@ class FaceTheMovie():
             if eventos == 'Jogar':
                 window.close() # Fecha janela de menu
                 self.gameModes()
-
+                break
             if eventos == 'Ranking':
                 window.close() # Fecha a janela de menu
                 self.showRanking() # Mostra a janela de rank
-
+                break
             if eventos == 'Como Jogar':
                 window.close()
                 self.howToPlay()
@@ -175,7 +180,6 @@ class FaceTheMovie():
     
     def howToPlay(self):
         # Layouts ------------------------
-        # Texto de teste kkkkk
         howToPlay = "Para o jogo 'Face The Movie' não é necessário ser cinéfilo para se divertir! Todos podem jogar 😊.\nPara isso, você precisa ficar bem atento(a) às dicas apresentadas na sua telinha.\n"
         howToPlay += "Serão 10 dicas sobre um filme sorteado por nós e você deve tentar acertá-lo. Disponibilizamos a opção de avançar ou retroceder dicas!\nA cada acerto, você receberá 300 pontos e a cada erro perderá 150 pontos!\n"
         howToPlay += "Ao final do jogo, o seu score (positivo ou negativo) será registrado em nossa tabelinha de ranking que poderá ser consultada em nosso menu principal no botão 'Ranking' 🥺.\n"
@@ -207,44 +211,70 @@ class FaceTheMovie():
     
     # Mostrar Rank ---------------------------------------------
     def showRanking(self):
-
-        # Layouts ------------------------
-        buttons = [
-            [sg.Button('Voltar', button_color=(
-                'white', sg.theme_background_color()), font=fontButton, border_width=0)],
-            [sg.Button('Enviar Pontuação', button_color=(
-                'white', sg.theme_background_color()), font=fontButton, border_width=0)]
-        ]
-        
+        userList = readRankingCSV()
+        #------------interface grafica---------------------------------------
         RankLayout = [
+            [sg.Image("imagens/coroa.png")],
             [sg.Text('MELHORES PONTUACOES', text_color=(
-                'white'), key='-text-', font=font)],
-            [sg.Column(buttons, vertical_alignment="bottom",element_justification='right',expand_x=True)]
+                'white'), key='-text-', font=font)]
         ]
-        
-        # Janela de Rank ----------------------------------
-        window = sg.Window('Ranking', RankLayout, size=(
-            900, 400), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
+    
+        scoreLayouts = []
 
-        readRankingCSV()
+        for i in range(len(userList)):
+            #------------criando o layout de imagens---------------
+            scoreLayout = self.makeScoreLayout(userList[i].getName(), userList[i].getTotalScore(), i + 1)
+
+            #--adicionando o layout em uma coluna de tamanho fixo--
+            # chamando a funcao de criacao de layout e adicionando na lista de layouts
+            scoreLayouts.append(scoreLayout)
+
+        # Scores
+        line = []
+
+        for i in range(len(userList)):
+            line += [scoreLayouts[i],]
+        
+        
+        RankLayout += [line]
+
+        buttons = [
+            [sg.Button('Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()), font=fontButton, image_filename='imagens/btn_ante_dica.png', border_width=0),
+            sg.Button('Enviar Pontuação', button_color=(sg.theme_background_color(), sg.theme_background_color()), font=fontButton, image_filename='imagens/btn_ante_dica.png', border_width=0)]
+        ]
+        RankLayout += [
+            [sg.Column(buttons, vertical_alignment="bottom",element_justification='center',expand_x=True)]
+        ]
+
+        window = sg.Window('Ranking', RankLayout, size=(
+        900, 600), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico').Finalize()
+        window.Maximize()
+
+        #--------------------------------------------------------------------------------------
+
         # Ler os eventos
         while True:
             eventos, valores = window.read()
             if eventos == sg.WINDOW_CLOSED:
+                window.close()
+                # volta para o menu principal
+                self.mainMenu()
                 break
             if eventos == 'Voltar':
                 window.close()
-                print('JOGO AQUI')
+                # volta para o menu principal
+                self.mainMenu()
+                break
+            if eventos == 'Enviar Pontuação':
+                window.close()
+                if self.user.getTotalScore() > 0:
+                    addUserNameCSV(self.user)
 
                 # volta para o menu principal
                 self.mainMenu()
-
-            if eventos == 'Enviar Pontuação':
-                if self.user.getTotalScore() > 0:
-                    addUserNameCSV(self.user)
                 break
-        # Ler csv do rank e mostrar na tela
-        print("SHoW RaNK")
+  
+  
 
     def timer_count(self):
         return int(round(time.time() * 100))
@@ -267,8 +297,19 @@ class FaceTheMovie():
         newHintCount = 0
         inGame = True
 
+        global round
+        round += 1
+
+        print("Round: " + str(round))
+
         # Cria o objeto 'Tabuleiro' de uma partida -----------------
-        self.gameboard = Gameboard(200, self.allMovies, 15, self.user.getLevel())
+        level = self.user.getLevel()
+        self.gameboard = Gameboard(200, self.allMovies, 16, level)
+
+        #Verif. se o jogo ja deve acabar
+        if level == 1 and round > 3:
+            self.showEndingScreen(1)
+            #fechar janela aqui?
         
         # Sorteando um filme para ser adivinhado ----------------
         self.gameboard.drawSelectedMovie()
@@ -284,25 +325,19 @@ class FaceTheMovie():
         print(self.gameboard.getSelectedMovie())
         # Sorteando as dicas do filme selecionado ---------------
         self.gameboard.drawHints(gameModeHint = gameMode)
-        hint = self.gameboard.getActualHint() # selecionando uma dica
+
+        newHint = self.gameboard.getActualHint() # selecionando uma dica
+        hint  = self.wrapHint(newHint)
 
         self.gameboard.shuffleMovies()
 
         # Interface ----------------------------------------
-        timer = [
-            [sg.Text('', font=fontText, justification='left', key='timer', pad=(0,0))]
-        ]
-
-        score = [
-            [sg.Text(self.gameboard.getScore(), font=fontText, justification='left', key='score', pad=(0,0))]
-        ]
 
         buttonNextHint = [
-            [sg.Button('< Dica Anterior', button_color=(
-                'white', sg.theme_background_color()), font=fontButton, border_width=0), 
-                sg.VerticalSeparator(),
-             sg.Button('Proxima Dica >', button_color=(
-                'white', sg.theme_background_color()), font=fontButton, border_width=0)]
+            [sg.Button('Dica Anterior', button_color=(
+                sg.theme_background_color(), sg.theme_background_color()), font=fontButton2, image_filename='imagens/btn_ante_dica.png', border_width=0), 
+             sg.Button('Proxima Dica', button_color=(
+                sg.theme_background_color(), sg.theme_background_color()), font=fontButton2, image_filename='imagens/btn_prox_dica.png', border_width=0)]
         ]
         
         # Lista com nomes das imagens e dos filmes que serao as alternativas
@@ -322,8 +357,13 @@ class FaceTheMovie():
                 btnGuessKey = "-btnAdv" + str(images[i][0]) + "-"
 
                 # chamando a funcao de criacao de layout e adicionando na lista de layouts
-                imgLayouts.append(self.makeImageLayout(
-                    images[i][1], imgKey, names[i], btnKey, btnGuessKey))
+                imgLayout = self.makeImageLayout(
+                            images[i][1], imgKey, names[i], btnKey, btnGuessKey)
+
+                #adicionando o layout em uma coluna de tamanho fixo
+                imgCol = sg.Col((imgLayout), size = (150,300))
+                # chamando a funcao de criacao de layout e adicionando na lista de layouts
+                imgLayouts.append(imgCol)
 
         except:
             print("Não foi possível encontrar as imagens!")
@@ -331,25 +371,28 @@ class FaceTheMovie():
         # layout da Pagina
         if gameMode == 1:
             Layout2 = [
-                [sg.Column(timer), sg.Column(score)],
-                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center')],
+                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center'),
+                sg.Text('', font=fontText, justification='left', key='timer', pad=(0,0)),
+                sg.Text(str(self.gameboard.getScore()) + " pontos", font=fontText, justification='left', key='score', pad=(0,0))]
             ]
         else:
             Layout2 = [
-                [score],
-                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center')],
+                [sg.Text(hint, key='-textHint-', font=fontHint, pad=(30,20), justification='center'), sg.Text(str(self.gameboard.getScore()) + " pontos", font=fontText, justification='left', key='score', pad=(0,0))],
             ]
 
         # Adicionando as imagens no layout
         line = []
+
         for i in range(len(imgLayouts)):
-            line += [sg.Column(imgLayouts[i], element_justification='c', pad=(0,2)),]
-            if i != 0 and i % 7 == 0: # Quantas imagens tem por linha
-                Layout2 += [line]
+            line += [imgLayouts[i],]
+            #garantindo que cada linha tera 8 filmes
+            if ((i+1) % 8) == 0:
+                Layout2 += [line],
                 line = []
 
         Layout2 += [line]
-        if gameMode != 2: Layout2 += [[sg.Frame('',buttonNextHint, pad=(0,20))]] # Adiciona o botao de nova dica
+
+        if gameMode != 2: Layout2 += [buttonNextHint] # Adiciona o botao de nova dica
 
         # Abrindo uma nova janela -------------------------
         window = sg.Window(
@@ -380,7 +423,7 @@ class FaceTheMovie():
                 else:
                     self.paused = 0
 
-            if eventos == 'Proxima Dica >':
+            if eventos == 'Proxima Dica':
                 # Atualizar a Pontuacao **
                 if newHintCount < 9:
                     if self.gameboard.decreaseScore(20) == 0: inGame = False
@@ -388,17 +431,19 @@ class FaceTheMovie():
                     newHintCount += 1
 
                 # Selecionando uma nova dica
-                hint = self.gameboard.nextHint()
+                newHint = self.gameboard.nextHint()
+                hint  = self.wrapHint(newHint)
 
                 if hint != None: 
                     # atualizando o elemento texto que representa a dica
                     window.Element('-textHint-').update(hint) 
 
-            if eventos == '< Dica Anterior':
+            if eventos == 'Dica Anterior':
                 # Atualizar a Pontuacao **
 
                 # Selecionando uma nova dica
-                hint = self.gameboard.previousHint()
+                newHint = self.gameboard.previousHint()
+                hint  = self.wrapHint(newHint)
 
                 if hint != None: 
                     window.Element('-textHint-').update(hint) 
@@ -426,7 +471,6 @@ class FaceTheMovie():
                     window.Element('score').update(self.gameboard.getScore()) 
 
                     window[imgName].update(data=imgGray)
-                    window[imgName].set_size((150,145))
                     window[eventos].update('Reverter')
 
                 elif window[eventos].get_text() == 'Reverter':
@@ -435,7 +479,6 @@ class FaceTheMovie():
                     window.Element('score').update(self.gameboard.getScore()) 
 
                     window[imgName].update(images[index][1])
-                    window[imgName].set_size((150,145))
                     window[eventos].update('Descartar')
 
             if eventos.startswith('-btnAdv'): # Tentar adivinhar um filme
@@ -460,10 +503,14 @@ class FaceTheMovie():
                     
                         if before < 1000 and self.user.getTotalScore() >= 1000: # Passou de nivel
                             self.user.increaseLevel()
+                            #contagem de rounds nessa fase
+                            round = 0
                             sg.popup_no_titlebar('Parabéns! Você passou para o próximo nível: Artista em cena', keep_on_top=True, background_color='black', font=fontPopUp)
 
                         elif before < 2500 and self.user.getTotalScore() >= 2500: # Passou de nivel
                             self.user.increaseLevel()
+                            #contagem de rounds nessa fase
+                            round = 0
                             sg.popup_no_titlebar('Parabéns! Você passou para o próximo nível: Cinéfilo', keep_on_top=True, background_color='black', font=fontPopUp)
                         
 
@@ -501,11 +548,59 @@ class FaceTheMovie():
             if not inGame:
                 sg.popup_no_titlebar('Sua pontuação chegou a zero! Você Perdeu! ', keep_on_top=True, background_color='black')
                 window.close()
-                self.mainMenu()
+                self.showEndingScreen(0)
                 break
             if gameMode == 1:
                 window['timer'].update('{:02d}:{:02d}'.format((self.current_time // 100) // 60,
                                                               (self.current_time // 100) % 60))
+    def showEndingScreen(self, type):
+    
+        score = self.user.getTotalScore()
+        text = ""
+        imgName = ""
+        #usuario chegou ao final
+        if type == 1:
+            text = "Parabens! Voce chegou ao final!"
+            imgName = "imagens/imgVitoria.png"
+
+        else:
+            text = "Voce perdeu :("
+            imgName = "imagens/imgDerrota.png"
+
+        layoutEndScreen = [
+            [sg.Image(imgName)],
+            [sg.Text(text, text_color=('white'), key='-text-', font=font)],
+            [sg.Text(str(score) + " pontos.", text_color=('white'), key='-text-', font=font)],
+            [sg.Button('Enviar Pontuacao', button_color=(sg.theme_background_color(), sg.theme_background_color()),
+                font=fontButton2, image_filename='imagens/btn_fundo.png', border_width=0),
+             sg.Button('Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()),
+                font=fontButton2, image_filename='imagens/btn_ante_dica.png', border_width=0)]
+        ]
+        window = sg.Window('Fim de Jogo', layoutEndScreen, size=(
+        900, 600), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
+
+
+        #--------------------------------------------------------------------------------------
+
+        # Ler os eventos
+        while True:
+            eventos, valores = window.read()
+            if eventos == sg.WINDOW_CLOSED:
+                window.close()
+                # volta para o menu principal
+                self.mainMenu()
+                break
+            if eventos == 'Voltar':
+                window.close()
+                # volta para o menu principal
+                self.mainMenu()
+                break
+            if eventos == 'Enviar Pontuação':
+                if self.user.getTotalScore() > 0:
+                    addUserNameCSV(self.user)
+                break
+
+        
 
 
     def endGame(self):
@@ -526,17 +621,52 @@ class FaceTheMovie():
         return image
 
     def makeImageLayout(self, nameImg, imgKey, nameMovie, btnKey, btnGuessKey):
+        #colocando o titulo do filme dentro de uma coluna de tamanho fixo
+        titleLayout = [[sg.Text(nameMovie, text_color=('white'), font=fontName)]]
+        titleCol = sg.Col((titleLayout), size = (150,60), pad=(0,0))
 
         # ------------------- Layout Definition -------------------
         imgLayout = [
-            [sg.Image(nameImg, key=imgKey, size=(150,145))],
-            [sg.Text(nameMovie, text_color=('white'), font=fontName, justification='center')],
-            [sg.HorizontalSeparator()],
+            [sg.Image(nameImg, key=imgKey)],
+            [titleCol],
             [sg.Button('Descartar', key=btnKey, button_color=(
-                'white', sg.theme_background_color()), font=fontHint, pad=(0,0), border_width=0)],
+                "white", sg.theme_background_color()),  image_filename='imagens/btn_descartar.png', font=fontButton3, border_width=0)],
             [sg.Button('Adivinhar', key=btnGuessKey, button_color=(
-                'white', sg.theme_background_color()), font=fontHint, pad=(0,0), border_width=0)]
+                "white", sg.theme_background_color()), image_filename='imagens/btn_adivinhar.png', font=fontButton3, border_width=0)]
         ]
 
-        # ------------------- Window Creation -------------------
+
         return imgLayout
+
+
+
+    def wrapHint(self, newHint):
+        if newHint != None:
+            # pegando os nomes dos filmes e adicionando quebra de linha
+            hintPieces = textwrap.wrap(newHint, 180, break_long_words=True, break_on_hyphens=True)
+            hint = ""
+            for i in range(len(hintPieces)):
+                print("hint: " + str(hint))
+                hint += hintPieces[i]
+                print(" + " + str(hintPieces[i]) + " = " + str(hint) + "\n")
+                print("-----------------------------")
+                if i < (len(hintPieces) - 1):
+                    hint += "\n"
+            print("Final: " + hint)
+            return hint
+
+    
+    def makeScoreLayout(self, name, score, pos):
+        #colocando o nome do usuario dentro de uma coluna de tamanho fixo
+        text = name + " " + str(score) + " pontos"
+        nameImg = ""
+        if pos == 1:
+            nameImg = "imagens/medal1.png"
+        elif pos == 2:
+            nameImg = "imagens/medal2.png"
+        elif pos == 3:
+            nameImg = "imagens/medal3.png"
+
+        scoreLayout = [[sg.Image(nameImg), sg.Text(text, text_color=('white'), font=fontScore)], 
+        [sg.Text("_______________________________________", text_color=('white'), font=fontScore)]]
+        return scoreLayout
