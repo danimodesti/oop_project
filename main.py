@@ -6,7 +6,7 @@
 # 
 # POO — 3o semestre — Professor Delamaro
 # 
-# Projeto Final - POO
+# Projeto Final - POO - 22/07/2022
 from FaceTheMovie import *
 
 def main():

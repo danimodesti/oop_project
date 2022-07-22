@@ -173,41 +173,41 @@ class FaceTheMovie():
     def howToPlay(self):
         # Layouts ------------------------
         howToPlay = self.wrapHint("Para jogar 'Face The Movie', não é necessário ser cinéfilo! Basta ficar bem atento(a) às informações apresentadas na sua telinha. Você terá até 10 dicas sobre um filme sorteado por nós para tentar acertá-lo, clicando em 'Adivinhar'' quando achar que o descobriu. Dessa forma, temos certeza de que você vai sair daqui sabendo muito mais sobre o mundo do Cinema!\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Níveis de jogo\n"
         howToPlay += self.wrapHint("\tApesar de não ser necessário ser um guru do cinema, o conhecimento do jogador é recompensado com mais pontos, possibilitando-o subir rapidamente de nível, começando no 1 (Pipoca de cinema), direcionando-se ao 2 (Artista em cena) e, finalmente, atingindo o 3 (Cinéfilo), a depender de sua pontuação conquistada. A cada nível, os filmes sorteados são repaginados e mais complicados.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Dicas\n"
         howToPlay += self.wrapHint("\tSe estiver muito difícil de acertar, fique tranquilo(a). Você pode adquirir até 10 dicas sobre o filme sorteado. Porém, faça-o sabiamente, pois, a cada dica fornecida, o usuário perde 20 pontos da rodada (que inicialmente vale 200 pontos).\n", 100)
         howToPlay +="\n"
         howToPlay += self.wrapHint("\tAs possíveis dicas para o jogo, são: nota no IMDB, gênero do filme, diretor, ator/atriz principal, algum outro membro do elenco, classificação indicativa, curiosidade sobre o filme, duração, ano de lançamento, e se o filme escolhido já ganhou um Oscar ou não. A ordem das dicas é aleatória.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Penalidades\n"
         howToPlay += self.wrapHint("\tO jogador perde pontos ao pedir dicas, ao reverter descartes de filme ou ao adivinhá-los incorretamente. É preciso pensar nas melhores escolhas para salvar o seu jogo a cada rodada, e atenção para não zerar a pontuação, o que causa FIM DE JOGO!\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Recuperando pontos\n"
         howToPlay += self.wrapHint("\tNem tudo está perdido! Caso você perca mais pontos que o esperado, pode descartar alguns filmes a partir das dicas que já tem. A cada filme desconsiderado, o jogador recupera 10 pontos!\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Revertendo o descarte\n"
         howToPlay += self.wrapHint("\tMuito cuidado com um movimento de descarte mal-pensado, pois, caso mude de ideia, o jogador perde 50 pontos para reativar a carta do filme.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Adivinhando o filme errado\n"
         howToPlay += self.wrapHint("\tCaso o jogador tente 'Adivinhar' e falhe, ele sofrerá uma perda de pontos significativa. Então, tenha certeza dessa decisão.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Ranking\n"
         howToPlay += self.wrapHint("\tOs cinco melhores jogadores ficam registrados nesta aba.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Modos de jogo\n"
         howToPlay += self.wrapHint("\tO jogador pode treinar seus conhecimentos em Cinema de três formas:\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += self.wrapHint("> Normal: jogo clássico. Há apenas controle de pontuação para cada rodada e para passar de níveis, até o terceiro. É possível finalizar o jogo e submeter pontuação de usuário;\n", 100)
         howToPlay +="\n"
-        howToPlay += self.wrapHint("> Temporizador: há um timer no topo da tela de jogo e o jogador tem 1 minuto por rodada para adivinhar o filme; caso isso não ocorra, é fim de jogo;\n", 100)
+        howToPlay += self.wrapHint("> Temporizador: há um timer no topo da tela de jogo e o jogador tem 2 minutos por rodada para adivinhar o filme; caso isso não ocorra, é fim de jogo;\n", 100)
         howToPlay +="\n"
         howToPlay += self.wrapHint("> Morte súbita: há apenas uma dica, a de curiosidade do filme. Caso o jogador, com essa informação, não adivinhe o filme sorteado, perde o jogo.\n", 100)
         howToPlay +="\n"
         howToPlay += self.wrapHint("O objetivo desses dois últimos modos é atingir a maior quantidade de rodadas completadas possível.\n", 100)
-        howToPlay +="\n"
+        howToPlay +="\n\n"
         howToPlay += "• Fim de jogo\n"
         howToPlay += self.wrapHint("\tPara terminar o jogo de verdade, o usuário deve atingir nível 3 - para isso, atingir uma pontuação específica para passar do nível 1 até o 2, e do 2 até o 3. A partir desse momento, adivinha 5 filmes até obter sua pontuação final.\n", 100)
 
@@ -431,7 +431,7 @@ class FaceTheMovie():
                 if gameMode == 1 and not self.paused:
                     eventos, values = window.read(timeout=10)
                     self.current_time = self.timer_count() - self.start_time
-                    if ((self.current_time // 100) // 60) == 5:
+                    if ((self.current_time // 100) // 60) == 2:
                         sg.popup_no_titlebar(
                             'ACABOU O TEMPO', keep_on_top=True, background_color='black', font=fontPopUp)
                         window.close()
@@ -442,7 +442,7 @@ class FaceTheMovie():
 
                 if eventos == sg.WINDOW_CLOSE_ATTEMPTED_EVENT or eventos == 'Exit':
                     self.paused = 1
-                    if sg.popup_yes_no('Tem certeza que deseja sair do jogo? Seu progresso nessa partida não sera salvo.', title='Já vai?', font=fontPopUp) == 'Yes':
+                    if sg.popup_yes_no('Tem certeza que deseja sair do jogo? Seu progresso nessa partida não será salvo.', title='Já vai?', font=fontPopUp) == 'Yes':
                         window.close()
                         self.mainMenu()
                         break
@@ -520,7 +520,7 @@ class FaceTheMovie():
                         
                         if self.gameboard.getIdSelectedMovie() == int(idMovie):
                             sg.popup_no_titlebar(
-                                f'Parabens! Voce acertou o filme, vamos para a próxima rodada! Voce ganhou com {self.gameboard.getScore()} pontos!', keep_on_top=True, background_color='black', font=fontPopUp)
+                                f'Parabéns! Você acertou o filme, vamos para a próxima rodada! Você ganhou com {self.gameboard.getScore()} pontos!', keep_on_top=True, background_color='black', font=fontPopUp)
                             self.gameboard.increaseScore(1.45) # Atualizando pontuacao
 
                             before = self.user.getTotalScore() 
@@ -542,14 +542,14 @@ class FaceTheMovie():
                             if before < 1000 and self.user.getTotalScore() < 1000:
                                 left = 1000 - self.user.getTotalScore()
                                 
-                                message = f"Faltam {left} para o nivel 2"
+                                message = f"Faltam {left} para o nível 2"
                                 sg.popup_no_titlebar(
                                     message, keep_on_top=True, background_color='black', font=fontPopUp)
                                 
                             elif before < 2500 and self.user.getTotalScore() < 2500:
                                 left = 2500 - self.user.getTotalScore()
                                 
-                                message = f"Faltam {left} para o nivel 3"
+                                message = f"Faltam {left} para o nível 3"
                                 sg.popup_no_titlebar(
                                     message, keep_on_top=True, background_color='black', font=fontPopUp)
 
@@ -562,7 +562,7 @@ class FaceTheMovie():
                             window.Element('score').update(self.gameboard.getScore()) 
 
                             if gameMode == 2:
-                                sg.popup_no_titlebar('Você Errou!! Boa sorte da próxima vez >:)', font=fontPopUp , keep_on_top=True, background_color='black')
+                                sg.popup_no_titlebar('Você errou!! Boa sorte da próxima vez >:)', font=fontPopUp , keep_on_top=True, background_color='black')
                                 window.close()
                                 self.mainMenu()
                                 break
@@ -570,7 +570,7 @@ class FaceTheMovie():
                                 sg.popup_no_titlebar('ERROU', keep_on_top=True, background_color='black')
                 
                 if not inGame:
-                    sg.popup_no_titlebar('Sua pontuação chegou a zero! Você Perdeu! ', keep_on_top=True, background_color='black')
+                    sg.popup_no_titlebar('Sua pontuação chegou a zero! Você perdeu! ', keep_on_top=True, background_color='black')
                     window.close()
                     self.showEndingScreen(0)
                     break
@@ -584,11 +584,11 @@ class FaceTheMovie():
         imgName = ""
         #usuario chegou ao final
         if type == 1:
-            text = "Parabens! Voce chegou ao final!"
+            text = "Parabéns! Você chegou ao final!"
             imgName = "imagens/imgVitoria.png"
 
         else:
-            text = "Voce perdeu :("
+            text = "Você perdeu :("
             imgName = "imagens/imgDerrota.png"
 
         layoutEndScreen = [
@@ -600,7 +600,7 @@ class FaceTheMovie():
              sg.Button('Voltar', button_color=(sg.theme_background_color(), sg.theme_background_color()),
                 font=fontButton2, image_filename='imagens/btn_ante_dica.png', border_width=0)]
         ]
-        window = sg.Window('Fim de Jogo', layoutEndScreen, size=(
+        window = sg.Window('Fim de jogo', layoutEndScreen, size=(
         900, 600), element_justification='c', use_default_focus=False, icon = './imagens/cinema.ico')
 
 
@@ -634,15 +634,18 @@ class FaceTheMovie():
 
     def decolorizeImage(self, imgName):
 
-        # lendo imagem original
-        originalImg = cv2.imread(imgName)
+        try:
+            # lendo imagem original
+            originalImg = cv2.imread(imgName)
 
-        # convertendo a cor
-        imgGray = cv2.cvtColor(originalImg, cv2.COLOR_BGR2GRAY)
+            # convertendo a cor
+            imgGray = cv2.cvtColor(originalImg, cv2.COLOR_BGR2GRAY)
 
-        # convertendo o formato da imagem
-        data = Image.fromarray(imgGray)
-        image = ImageTk.PhotoImage(image=data)
+            # convertendo o formato da imagem
+            data = Image.fromarray(imgGray)
+            image = ImageTk.PhotoImage(image=data)
+        except:
+            pass
 
         return image
 

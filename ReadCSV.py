@@ -68,9 +68,9 @@ def readMovieCSV(movies):
                     movies.append(newMovie)
 
             except:
-                print("Nao foi possivel ler as informacoes do filme")
+                print("Nao foi possível ler as informações do filme")
         except:
-            print("Nao foi possivel ler o arquivo")
+            print("Nao foi possível ler o arquivo")
 
 def addUserNameCSV(user):
     if type(user) is User:

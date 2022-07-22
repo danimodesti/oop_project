@@ -6,7 +6,6 @@ def insertion_sort(list):
     for i in range(1, len(list)):
         # Queremos posicionar a chave no lugar correto da list
         key = list[i]
-        print(type(key))
 
         # Para testar posicao anterior a da chave atual
         j = i - 1
