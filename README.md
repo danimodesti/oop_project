@@ -22,3 +22,7 @@ Necessary Python modules for running the application:
 - textwrap
 
 The above control the graphic interface, the movie's sorting operations, the percentage of penalty's lost score, .csv files' manipulation and time-control for timed game-mode.
+
+
+# Link para o vídeo de demonstração do software funcionando
+https://youtu.be/nTKAKvaULzM
